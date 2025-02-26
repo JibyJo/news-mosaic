@@ -95,4 +95,10 @@ export const menuItems = [
   { name: "Sports", link: "/category/sports" },
   { name: "Science", link: "/category/science" },
 ];
+
+export const BASE_URLS = {
+  newsAPI: "https://newsapi.org/v2/everything",
+  guardianAPI: "https://content.guardianapis.com/search",
+  nytAPI: "https://api.nytimes.com/svc/search/v2/articlesearch.json",
+};
 export { newsAPICategories, newYorkTimesCategories };

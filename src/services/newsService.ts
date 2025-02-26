@@ -1,5 +1,9 @@
 import axios from "axios";
-import { guardianEquivalents, nytEquivalents } from "../utils/constants";
+import {
+  BASE_URLS,
+  guardianEquivalents,
+  nytEquivalents,
+} from "../utils/constants";
 
 const API_KEYS = {
   newsAPI: import.meta.env.VITE_NEWSAPI_ORG_KEY,
@@ -113,9 +117,7 @@ const fetchNewsAPI = async (filters: Filters): Promise<FormattedArticle[]> => {
         : { q: "home" }),
     });
 
-    const response = await axios.get(
-      `https://newsapi.org/v2/everything?${params}`
-    );
+    const response = await axios.get(`${BASE_URLS.newsAPI}?${params}`);
     return normalizeNews(response.data.articles, "News API");
   } catch (error) {
     console.error("Error fetching NewsAPI data:", error);
@@ -141,9 +143,7 @@ const fetchGuardianNews = async (
       ...(filters.searchQuery ? { q: filters.searchQuery } : {}),
     });
 
-    const response = await axios.get(
-      `https://content.guardianapis.com/search?${params}`
-    );
+    const response = await axios.get(`${BASE_URLS.guardianAPI}?${params}`);
     return normalizeNews(response.data.response.results, "The Guardian");
   } catch (error) {
     console.error("Error fetching Guardian news:", error);
@@ -162,9 +162,7 @@ const fetchNYTNews = async (filters: Filters): Promise<FormattedArticle[]> => {
         : { sort: guardianEquivalents[filters.dateSort || "mostRecent"] }),
     });
 
-    const response = await axios.get(
-      `https://api.nytimes.com/svc/search/v2/articlesearch.json?${params}`
-    );
+    const response = await axios.get(`${BASE_URLS.nytAPI}?${params}`);
     return normalizeNews(response.data.response.docs, "New York Times");
   } catch (error) {
     console.error("Error fetching NYT news:", error);
@@ -200,8 +198,6 @@ export const fetchAllNews = async (
     throw error;
   }
 };
-const NYT_SEARCH_BASE_URL =
-  "https://api.nytimes.com/svc/search/v2/articlesearch.json";
 
 export const fetchRegionNews = async (
   region: string
@@ -213,7 +209,7 @@ export const fetchRegionNews = async (
       ...(region ? { fq: `section_name:${region}` } : {}),
     });
 
-    const response = await fetch(`${NYT_SEARCH_BASE_URL}?${params.toString()}`);
+    const response = await fetch(`${BASE_URLS.nytAPI}?${params.toString()}`);
     if (!response.ok) {
       throw new Error("Failed to fetch news");
     }
