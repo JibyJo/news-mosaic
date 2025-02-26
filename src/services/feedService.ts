@@ -2,127 +2,98 @@ import { toast } from "react-toastify";
 import { API_KEYS, BASE_URLS } from "../utils/constants";
 import { normalizeNews } from "../utils/helperFunctions";
 
-export const fetchNYTNews = async (
-  queries: string[],
-  categories: string[]
-): Promise<any[]> => {
+interface NewsResponse {
+  response?: { docs?: any[]; results?: any[] };
+  articles?: any[];
+}
+
+const fetchNewsFromAPI = async (
+  url: string,
+  params: URLSearchParams,
+  errorMessage: string
+): Promise<NewsResponse | null> => {
   try {
-    let dataResults: any[] = [];
-
-    if (queries.length > 0) {
-      const params = new URLSearchParams({
-        "api-key": API_KEYS.nytAPI,
-        q: queries.join(" OR "),
-        sort: "newest",
-      });
-      const response = await fetch(`${BASE_URLS.nytAPI}?${params.toString()}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.response?.docs) {
-          dataResults = [...dataResults, ...data.response.docs];
-        }
-      }
-    }
-
-    if (categories.length > 0) {
-      const params = new URLSearchParams({
-        "api-key": API_KEYS.nytAPI,
-        fq: `section_name:(${categories.join(" OR ")})`,
-        sort: "newest",
-      });
-      const response = await fetch(`${BASE_URLS.nytAPI}?${params.toString()}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.response?.docs) {
-          dataResults = [...dataResults, ...data.response.docs];
-        }
-      }
-    }
-
-    return dataResults;
+    const response = await fetch(`${url}?${params.toString()}`);
+    if (!response.ok) throw new Error(errorMessage);
+    return await response.json();
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
-    toast.error(errorMessage);
-    console.error("Error fetching NYT news:", error);
-    return [];
+    toast.error(
+      error instanceof Error ? error.message : "An unknown error occurred"
+    );
+    console.error(errorMessage, error);
+    return null;
   }
 };
 
-export const fetchNewsAPI = async (
+const fetchNYTNews = async (
   queries: string[],
   categories: string[]
 ): Promise<any[]> => {
-  try {
-    const queriesStr = queries.join(" OR ");
-    const categoriesStr = categories.join("OR");
-    const queryString = queriesStr + " OR " + categoriesStr;
+  let dataResults: any[] = [];
+
+  const fetchData = async (paramOptions: Record<string, string>) => {
     const params = new URLSearchParams({
-      apiKey: API_KEYS.newsAPI,
-      q: queryString,
+      "api-key": API_KEYS.nytAPI,
+      ...paramOptions,
     });
-    const response = await fetch(`${BASE_URLS.newsAPI}?${params.toString()}`);
-    if (response.status == 429)
-      throw new Error("Rate Limit exceeded NewsAPI Org");
-    if (!response.ok) throw new Error("Failed to fetch NewsAPI news");
-    const data = await response.json();
-    return data.articles || [];
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
-    toast.error(errorMessage);
-    console.error("Error fetching NewsAPI news:", error);
-    return [];
-  }
+    const data = await fetchNewsFromAPI(
+      BASE_URLS.nytAPI,
+      params,
+      "Error fetching NYT news"
+    );
+    if (data?.response?.docs) dataResults.push(...data.response.docs);
+  };
+
+  if (queries.length)
+    await fetchData({ q: queries.join(" OR "), sort: "newest" });
+  if (categories.length)
+    await fetchData({
+      fq: `section_name:(${categories.join(" OR ")})`,
+      sort: "newest",
+    });
+
+  return dataResults;
 };
 
-export const fetchGuardianNews = async (
+const fetchNewsAPI = async (
   queries: string[],
   categories: string[]
 ): Promise<any[]> => {
-  try {
-    let dataResults: any[] = [];
+  const params = new URLSearchParams({
+    apiKey: API_KEYS.newsAPI,
+    q: [...queries, ...categories].join(" OR "),
+  });
+  const data = await fetchNewsFromAPI(
+    BASE_URLS.newsAPI,
+    params,
+    "Error fetching NewsAPI news"
+  );
+  return data?.articles || [];
+};
 
-    if (queries.length > 0) {
-      const params = new URLSearchParams({
-        "api-key": API_KEYS.guardianAPI,
-        q: queries.join(" OR "),
-      });
-      const response = await fetch(
-        `${BASE_URLS.guardianAPI}?${params.toString()}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        if (data.response?.results) {
-          dataResults = [...dataResults, ...data.response.results];
-        }
-      }
-    }
+const fetchGuardianNews = async (
+  queries: string[],
+  categories: string[]
+): Promise<any[]> => {
+  let dataResults: any[] = [];
 
-    if (categories.length > 0) {
-      const params = new URLSearchParams({
-        "api-key": API_KEYS.guardianAPI,
-        section: categories.join(","),
-      });
-      const response = await fetch(
-        `${BASE_URLS.guardianAPI}?${params.toString()}`
-      );
-      if (response.ok) {
-        const data = await response.json();
-        if (data.response?.results) {
-          dataResults = [...dataResults, ...data.response.results];
-        }
-      }
-    }
+  const fetchData = async (paramOptions: Record<string, string>) => {
+    const params = new URLSearchParams({
+      "api-key": API_KEYS.guardianAPI,
+      ...paramOptions,
+    });
+    const data = await fetchNewsFromAPI(
+      BASE_URLS.guardianAPI,
+      params,
+      "Error fetching Guardian news"
+    );
+    if (data?.response?.results) dataResults.push(...data.response.results);
+  };
 
-    return dataResults;
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : "An unknown error occurred";
-    toast.error(errorMessage);
-    console.error("Error fetching Guardian news:", error);
-    return [];
-  }
+  if (queries.length) await fetchData({ q: queries.join(" OR ") });
+  if (categories.length) await fetchData({ section: categories.join(",") });
+
+  return dataResults;
 };
 
 export const fetchPersonalisedNews = async (): Promise<any[]> => {
@@ -135,18 +106,22 @@ export const fetchPersonalisedNews = async (): Promise<any[]> => {
       .split(",")
       .slice(-10)
       .reverse();
+
     const results = await Promise.allSettled([
       fetchNYTNews(queries, categories),
       fetchNewsAPI(queries, categories),
       fetchGuardianNews(queries, categories),
     ]);
 
-    const fulfilledResults = results
-      .filter((result) => result.status === "fulfilled")
-      .map((result) => (result as PromiseFulfilledResult<any[]>).value)
-      .flat();
-
-    return normalizeNews(fulfilledResults, "Your Feed");
+    return normalizeNews(
+      results
+        .filter(
+          (result): result is PromiseFulfilledResult<any[]> =>
+            result.status === "fulfilled"
+        )
+        .flatMap((result) => result.value),
+      "Your Feed"
+    );
   } catch (error) {
     console.error("Error fetching personalized news:", error);
     return [];
