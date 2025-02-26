@@ -79,16 +79,18 @@ export const fetchPersonalisedNews = async (): Promise<any[]> => {
       .split(",")
       .slice(-10)
       .reverse();
-    const [nytNews, newsAPI, guardianNews] = await Promise.all([
+    const results = await Promise.allSettled([
       fetchNYTNews(queries, categories),
       fetchNewsAPI(queries, categories),
       fetchGuardianNews(queries, categories),
     ]);
 
-    return normalizeNews(
-      [...nytNews, ...newsAPI, ...guardianNews],
-      "Your Feed"
-    );
+    const fulfilledResults = results
+      .filter((result) => result.status === "fulfilled")
+      .map((result) => (result as PromiseFulfilledResult<any[]>).value)
+      .flat();
+
+    return normalizeNews(fulfilledResults, "Your Feed");
   } catch (error) {
     console.error("Error fetching personalized news:", error);
     return [];
