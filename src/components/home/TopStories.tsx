@@ -1,7 +1,7 @@
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import useTopNews from "../hooks/useTopStories";
+import useTopNews from "../../hooks/useTopStories";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const TopStories = () => {

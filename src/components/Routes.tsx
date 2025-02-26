@@ -2,11 +2,11 @@ import { Routes, Route, Navigate } from "react-router-dom";
 // import NewsDetail from "./components/NewsDetail";
 // import RegionNews from "./pages/RegionNews";
 import Home from "./home";
-import Layout from "./Layout";
+import Layout from "./layout/Layout";
 import NotFound from "./NotFound";
-import PrivacyPolicy from "./PrivacyPolicy";
-import WhoWeAre from "./WhoWeAre";
-import Terms from "./TermsAndConditions";
+import PrivacyPolicy from "./about/PrivacyPolicy";
+import WhoWeAre from "./about/WhoWeAre";
+import Terms from "./about/TermsAndConditions";
 
 const AppRoutes = () => {
   return (
