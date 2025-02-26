@@ -100,5 +100,6 @@ export const BASE_URLS = {
   newsAPI: "https://newsapi.org/v2/everything",
   guardianAPI: "https://content.guardianapis.com/search",
   nytAPI: "https://api.nytimes.com/svc/search/v2/articlesearch.json",
+  nytAPIImage: "https://static01.nyt.com/",
 };
 export { newsAPICategories, newYorkTimesCategories };

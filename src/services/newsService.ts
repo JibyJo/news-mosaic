@@ -50,7 +50,9 @@ const normalizeNews = (
     url: article.url || "#",
     imageUrl:
       article.multimedia?.length > 0
-        ? article.multimedia[0].url
+        ? article.multimedia[0].url[0] === "i"
+          ? BASE_URLS.nytAPIImage + article.multimedia[0].url
+          : article.multimedia[0].url
         : article.urlToImage || article.media || "/news_mosaic.webp",
     publishedAt: article.publishedAt || article.date || "Unknown date",
     sourceProvider,
@@ -200,13 +202,15 @@ export const fetchAllNews = async (
 };
 
 export const fetchRegionNews = async (
-  region: string
+  region: string,
+  page: number = 0
 ): Promise<{ articles: any[] }> => {
   try {
     const params = new URLSearchParams({
       "api-key": API_KEYS.nytAPI,
       sort: "newest",
-      ...(region ? { fq: `section_name:${region}` } : {}),
+      page: page.toString(),
+      ...(region ? { fq: `section_name:(\"${region}\")` } : {}),
     });
 
     const response = await fetch(`${BASE_URLS.nytAPI}?${params.toString()}`);
