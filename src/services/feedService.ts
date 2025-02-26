@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import { API_KEYS, BASE_URLS } from "../utils/constants";
 import { normalizeNews } from "../utils/helperFunctions";
 
@@ -15,10 +16,15 @@ export const fetchNYTNews = async (
       sort: "newest",
     });
     const response = await fetch(`${BASE_URLS.nytAPI}?${params.toString()}`);
+
     if (!response.ok) throw new Error("Failed to fetch NYT news");
     const data = await response.json();
     return data.response?.docs || [];
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    toast.error(errorMessage);
+
     console.error("Error fetching NYT news:", error);
     return [];
   }
@@ -37,10 +43,15 @@ export const fetchNewsAPI = async (
       q: queryString,
     });
     const response = await fetch(`${BASE_URLS.newsAPI}?${params.toString()}`);
+    if (response.status == 429)
+      throw new Error("Rate Limit exceeded NewsAPI Org");
     if (!response.ok) throw new Error("Failed to fetch NewsAPI news");
     const data = await response.json();
     return data.articles || [];
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    toast.error(errorMessage);
     console.error("Error fetching NewsAPI news:", error);
     return [];
   }
@@ -64,6 +75,9 @@ export const fetchGuardianNews = async (
     const data = await response.json();
     return data.response?.results || [];
   } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "An unknown error occurred";
+    toast.error(errorMessage);
     console.error("Error fetching Guardian news:", error);
     return [];
   }
