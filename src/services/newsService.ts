@@ -148,12 +148,19 @@ export const fetchAllNews = async (
   try {
     personalFeed(filters);
     if (!filters.source) {
-      const [newsAPI, guardian, nyt] = await Promise.all([
+      const results = await Promise.allSettled([
         fetchNewsAPI(filters),
         fetchGuardianNews(filters),
         fetchNYTNews(filters),
       ]);
-      return [...newsAPI, ...guardian, ...nyt];
+
+      return results
+        .filter((result) => result.status === "fulfilled")
+        .map(
+          (result) =>
+            (result as PromiseFulfilledResult<FormattedArticle[]>).value
+        )
+        .flat();
     } else {
       switch (filters.source) {
         case "newsapi":

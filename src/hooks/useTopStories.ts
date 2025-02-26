@@ -35,22 +35,22 @@ const useTopNews = (): UseFormattedNewsResult => {
     const fetchNews = async () => {
       try {
         setLoading(true);
-        const [newsAPI, nytAPI] = await Promise.all([
+        const results = await Promise.allSettled([
           fetchTopStoriesNewsAPI(),
           fetchTopStoriesNewYorkTimes(),
         ]);
 
-        const formattedNewsAPI = newsAPI.map((article: Article) => ({
-          ...article,
-          sourceProvider: "newsapiorg",
-        }));
+        const formattedResults = results.flatMap((result, index) => {
+          if (result.status === "fulfilled") {
+            return result.value.map((article: Article) => ({
+              ...article,
+              sourceProvider: index === 0 ? "newsapiorg" : "newyorktimes",
+            }));
+          }
+          return [];
+        });
 
-        const formattedNYTAPI = nytAPI.map((article: Article) => ({
-          ...article,
-          sourceProvider: "newyorktimes",
-        }));
-
-        setNews([...formattedNewsAPI, ...formattedNYTAPI]);
+        setNews(formattedResults);
       } catch (err) {
         setError(err as Error);
       } finally {

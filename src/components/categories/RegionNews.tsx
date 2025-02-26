@@ -11,7 +11,6 @@ const RegionNews = () => {
 
   useEffect(() => {
     if (region) {
-      // Reset news and pagination when region changes
       setNews([]);
       setPage(0);
       setHasMore(true);
