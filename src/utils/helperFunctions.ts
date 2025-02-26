@@ -2,7 +2,7 @@ import { Filters, FormattedArticle } from "../services/newsService";
 import { BASE_URLS } from "./constants";
 
 const personalFeed = async (filters: Filters) => {
-  const MAX_ITEMS = 10;
+  const MAX_ITEMS = 5;
 
   if (filters.category) {
     let existingCategories = localStorage.getItem("category");

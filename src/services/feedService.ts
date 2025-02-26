@@ -73,11 +73,12 @@ export const fetchPersonalisedNews = async (): Promise<any[]> => {
   try {
     const queries = (localStorage.getItem("searchQuery") || "")
       .split(",")
-      .slice(-10);
+      .slice(-10)
+      .reverse();
     const categories = (localStorage.getItem("category") || "")
       .split(",")
-      .slice(-10);
-    console.log("queries", queries, categories);
+      .slice(-10)
+      .reverse();
     const [nytNews, newsAPI, guardianNews] = await Promise.all([
       fetchNYTNews(queries, categories),
       fetchNewsAPI(queries, categories),
