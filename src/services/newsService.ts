@@ -111,12 +111,14 @@ const fetchNewsAPI = async (filters: Filters): Promise<FormattedArticle[]> => {
       ...(filters.dateSort === "custom"
         ? { from: filters.fromDate || "", to: filters.toDate || "" }
         : { sortBy: nytEquivalents[filters.dateSort || "mostRecent"] }),
-      ...(filters.searchQuery ? { q: `"${filters.searchQuery}"` } : {}),
       ...(filters.category && filters.searchQuery
         ? { q: `"${filters.category}" AND "${filters.searchQuery}"` }
         : filters.category
         ? { q: `"${filters.category}"` }
         : { q: "home" }),
+      ...(filters.searchQuery && !filters.category
+        ? { q: `"${filters.searchQuery}"` }
+        : {}),
     });
 
     const response = await axios.get(`${BASE_URLS.newsAPI}?${params}`);
