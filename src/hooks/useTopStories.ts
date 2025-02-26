@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
-import { fetchSectionsAPI, fetchTopStoriesNewsAPI, fetchTopStoriesNewYorkTimes } from "../services/newsService";
+import {
+  fetchSectionsAPI,
+  fetchTopStoriesNewsAPI,
+  fetchTopStoriesNewYorkTimes,
+} from "../services/newsService";
 
-// Define the shape of an individual article
 interface Article {
   author: string;
   id?: string;
@@ -16,7 +19,6 @@ interface Article {
   sourceProvider?: string;
 }
 
-// Define the shape of the hook's return value
 interface UseFormattedNewsResult {
   news: Article[];
   loading: boolean;
@@ -38,7 +40,6 @@ const useTopNews = (): UseFormattedNewsResult => {
           fetchTopStoriesNewYorkTimes(),
         ]);
 
-        // Adding sourceProvider dynamically
         const formattedNewsAPI = newsAPI.map((article: Article) => ({
           ...article,
           sourceProvider: "newsapiorg",

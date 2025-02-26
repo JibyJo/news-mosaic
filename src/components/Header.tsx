@@ -1,15 +1,16 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Header: React.FC = () => {
   return (
     <header className="bg-[rgb(59,67,74)] text-white shadow-md fixed top-0 left-0 right-0 z-50">
       <div className="container mx-auto flex items-center justify-between py-3 px-4">
-        <a href="/en/top-stories/s-9097" className="flex items-center">
+        <Link to="/" className="flex items-center">
           <div className="w-10 h-10">
             <img src="/news_mosaic.svg" alt="News Mosaic Logo" />
           </div>
           <span className="ml-2 text-lg font-semibold"> News Mosaic</span>
-        </a>
+        </Link>
 
         <nav className="hidden md:flex space-x-6">
           <a href="/en/africa/s-12756" className="hover:text-gray-300">

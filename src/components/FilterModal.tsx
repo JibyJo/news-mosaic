@@ -7,7 +7,7 @@ interface options {
   name: string;
 }
 const FilterModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-  const { filters, setFilters } = useFilters(); // Access context
+  const { filters, setFilters } = useFilters();
   const [dateSort, setDateSort] = useState(filters.dateSort || "mostRecent");
   const [fromDate, setFromDate] = useState(filters.fromDate || "");
   const [toDate, setToDate] = useState(filters.toDate || "");
