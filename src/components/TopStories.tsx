@@ -58,7 +58,7 @@ const TopStories = () => {
                 <img
                   src={story.imageUrl}
                   alt={story.title}
-                  className="w-full h-full object-contain rounded-lg" // Ensures full image is visible
+                  className="w-full h-full object-contain rounded-lg"
                 />
               </div>
               <p className="text-gray-500 mt-2">

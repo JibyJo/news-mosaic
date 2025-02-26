@@ -2,15 +2,15 @@ import React from "react";
 
 const Footer: React.FC = () => {
   return (
-    <footer className="bg-[#3B434A] text-white text-sm py-6">
-      <div className="container mx-auto px-4">
+    <footer className="bg-[#3B434A] text-white text-sm py-6 w-full">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
           <div>
             <h2 className="text-lg font-semibold mb-3">About News Mosaic</h2>
             <ul className="space-y-2">
               <li>
                 <a
-                  href="/about"
+                  href="/who-we-are"
                   className="text-gray-300 hover:text-white transition"
                 >
                   Who we are
@@ -131,7 +131,7 @@ const Footer: React.FC = () => {
             <a href="/legal-notice" className="hover:text-white transition">
               Legal Notice
             </a>
-            <a href="/terms" className="hover:text-white transition">
+            <a href="/terms-of-service" className="hover:text-white transition">
               Terms & Conditions
             </a>
           </div>

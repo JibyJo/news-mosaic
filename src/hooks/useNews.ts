@@ -11,7 +11,6 @@ interface NewsArticle {
 }
 
 const useNews = () => {
-  console.log("useNews triggered"); // Debugging purpose
   const { filters } = useFilters();
   const [news, setNews] = useState<NewsArticle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -31,7 +30,7 @@ const useNews = () => {
     };
 
     getNews();
-  }, [JSON.stringify(filters)]); // <-- Ensures changes trigger re-fetch
+  }, [JSON.stringify(filters)]);
 
   return { news, loading, error };
 };

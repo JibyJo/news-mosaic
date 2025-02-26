@@ -1,21 +1,15 @@
-import Footer from "./components/Footer";
-import Header from "./components/Header";
-import NewsList from "./components/NewsList";
-import SearchWithFilters from "./components/SearchWithFilters";
-import TopStories from "./components/TopStories";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "./components/Routes";
+
 import { FilterProvider } from "./context/FilterContext";
 
 function App() {
   return (
-    
-      <FilterProvider>
-        <Header />
-        <TopStories />
-        <SearchWithFilters />
-        <NewsList />
-        <Footer />
-      </FilterProvider>
-    
+    <FilterProvider>
+      <BrowserRouter>
+        <AppRoutes />
+      </BrowserRouter>
+    </FilterProvider>
   );
 }
 
