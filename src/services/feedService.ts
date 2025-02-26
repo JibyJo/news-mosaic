@@ -7,24 +7,43 @@ export const fetchNYTNews = async (
   categories: string[]
 ): Promise<any[]> => {
   try {
-    const queryString = queries.join(" OR ");
-    const categoryString = categories.join(" OR ");
-    const params = new URLSearchParams({
-      "api-key": API_KEYS.nytAPI,
-      q: queryString,
-      fq: `section_name:(${categoryString})`,
-      sort: "newest",
-    });
-    const response = await fetch(`${BASE_URLS.nytAPI}?${params.toString()}`);
+    let dataResults: any[] = [];
 
-    if (!response.ok) throw new Error("Failed to fetch NYT news");
-    const data = await response.json();
-    return data.response?.docs || [];
+    if (queries.length > 0) {
+      const params = new URLSearchParams({
+        "api-key": API_KEYS.nytAPI,
+        q: queries.join(" OR "),
+        sort: "newest",
+      });
+      const response = await fetch(`${BASE_URLS.nytAPI}?${params.toString()}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.response?.docs) {
+          dataResults = [...dataResults, ...data.response.docs];
+        }
+      }
+    }
+
+    if (categories.length > 0) {
+      const params = new URLSearchParams({
+        "api-key": API_KEYS.nytAPI,
+        fq: `section_name:(${categories.join(" OR ")})`,
+        sort: "newest",
+      });
+      const response = await fetch(`${BASE_URLS.nytAPI}?${params.toString()}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.response?.docs) {
+          dataResults = [...dataResults, ...data.response.docs];
+        }
+      }
+    }
+
+    return dataResults;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "An unknown error occurred";
     toast.error(errorMessage);
-
     console.error("Error fetching NYT news:", error);
     return [];
   }
@@ -62,18 +81,41 @@ export const fetchGuardianNews = async (
   categories: string[]
 ): Promise<any[]> => {
   try {
-    const queryString = queries.join(" OR ");
-    const params = new URLSearchParams({
-      "api-key": API_KEYS.guardianAPI,
-      q: queryString,
-      section: categories.join(","),
-    });
-    const response = await fetch(
-      `${BASE_URLS.guardianAPI}?${params.toString()}`
-    );
-    if (!response.ok) throw new Error("Failed to fetch Guardian news");
-    const data = await response.json();
-    return data.response?.results || [];
+    let dataResults: any[] = [];
+
+    if (queries.length > 0) {
+      const params = new URLSearchParams({
+        "api-key": API_KEYS.guardianAPI,
+        q: queries.join(" OR "),
+      });
+      const response = await fetch(
+        `${BASE_URLS.guardianAPI}?${params.toString()}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data.response?.results) {
+          dataResults = [...dataResults, ...data.response.results];
+        }
+      }
+    }
+
+    if (categories.length > 0) {
+      const params = new URLSearchParams({
+        "api-key": API_KEYS.guardianAPI,
+        section: categories.join(","),
+      });
+      const response = await fetch(
+        `${BASE_URLS.guardianAPI}?${params.toString()}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        if (data.response?.results) {
+          dataResults = [...dataResults, ...data.response.results];
+        }
+      }
+    }
+
+    return dataResults;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "An unknown error occurred";
