@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FaSearch, FaFilter } from "react-icons/fa";
 import FilterModal from "./FilterModal";
-import { useFilters } from "../context/FilterContext";
+import { useFilters } from "../../context/FilterContext";
 
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);

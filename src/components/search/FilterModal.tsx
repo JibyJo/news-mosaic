@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { newsAPICategories, newYorkTimesCategories } from "../utils/constants";
-import { fetchSectionsAPI } from "../services/newsService";
-import { useFilters } from "../context/FilterContext";
+import {
+  newsAPICategories,
+  newYorkTimesCategories,
+} from "../../utils/constants";
+import { fetchSectionsAPI } from "../../services/newsService";
+import { useFilters } from "../../context/FilterContext";
 interface options {
   value: string;
   name: string;

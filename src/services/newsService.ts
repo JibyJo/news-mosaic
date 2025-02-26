@@ -1,5 +1,9 @@
 import axios from "axios";
-import { guardianEquivalents, nytEquivalents } from "../utils/constants";
+import {
+  BASE_URLS,
+  guardianEquivalents,
+  nytEquivalents,
+} from "../utils/constants";
 
 const API_KEYS = {
   newsAPI: import.meta.env.VITE_NEWSAPI_ORG_KEY,
@@ -9,11 +13,11 @@ const API_KEYS = {
 
 interface Filters {
   dateSort?: string;
-  fromDate?: string|null;
-  toDate?: string|null;
+  fromDate?: string | null;
+  toDate?: string | null;
   searchQuery?: string;
   category?: string;
-  source?:string;
+  source?: string;
 }
 
 interface FormattedArticle {
@@ -27,31 +31,47 @@ interface FormattedArticle {
   author: string;
 }
 
-const normalizeNews = (rawNews: any[], sourceProvider: string): FormattedArticle[] =>
+const normalizeNews = (
+  rawNews: any[],
+  sourceProvider: string
+): FormattedArticle[] =>
   rawNews.map((article, index) => ({
     id: article.id || `news-${sourceProvider}-${index}`,
-    title: article.title || article.webTitle || article.headline?.main || "No title available",
-    description: article.description || article.abstract || article.sectionName || "No description available",
+    title:
+      article.title ||
+      article.webTitle ||
+      article.headline?.main ||
+      "No title available",
+    description:
+      article.description ||
+      article.abstract ||
+      article.sectionName ||
+      "No description available",
     url: article.url || "#",
-    imageUrl: 
+    imageUrl:
       article.multimedia?.length > 0
-        ? article.multimedia[0].url
-        : article.urlToImage || article.media || "/news_mosaic.webp" 
-,
+        ? article.multimedia[0].url[0] === "i"
+          ? BASE_URLS.nytAPIImage + article.multimedia[0].url
+          : article.multimedia[0].url
+        : article.urlToImage || article.media || "/news_mosaic.webp",
     publishedAt: article.publishedAt || article.date || "Unknown date",
     sourceProvider,
     author: article.byline || article.author || sourceProvider,
   }));
 
-export const fetchSectionsAPI = async (): Promise<{ value: string; name: string }[]> => {
+export const fetchSectionsAPI = async (): Promise<
+  { value: string; name: string }[]
+> => {
   try {
     const response = await axios.get(
       `https://content.guardianapis.com/sections?api-key=${API_KEYS.guardianAPI}`
     );
-    return response.data.response.results.map((section: { id: string; webTitle: string }) => ({
-      value: section.id,
-      name: section.webTitle,
-    }));
+    return response.data.response.results.map(
+      (section: { id: string; webTitle: string }) => ({
+        value: section.id,
+        name: section.webTitle,
+      })
+    );
   } catch (error) {
     console.error("Error fetching Guardian sections:", error);
     throw error;
@@ -70,7 +90,9 @@ export const fetchTopStoriesNewsAPI = async (): Promise<FormattedArticle[]> => {
   }
 };
 
-export const fetchTopStoriesNewYorkTimes = async (): Promise<FormattedArticle[]> => {
+export const fetchTopStoriesNewYorkTimes = async (): Promise<
+  FormattedArticle[]
+> => {
   try {
     const response = await axios.get(
       `https://api.nytimes.com/svc/topstories/v2/home.json?api-key=${API_KEYS.nytAPI}`
@@ -90,10 +112,14 @@ const fetchNewsAPI = async (filters: Filters): Promise<FormattedArticle[]> => {
         ? { from: filters.fromDate || "", to: filters.toDate || "" }
         : { sortBy: nytEquivalents[filters.dateSort || "mostRecent"] }),
       ...(filters.searchQuery ? { q: `"${filters.searchQuery}"` } : {}),
-      ...(filters.category&&filters.searchQuery ? { q: `"${filters.category}" AND "${filters.searchQuery}"` } :filters.category? { q: `"${filters.category}"` }: {q:'home'}),
+      ...(filters.category && filters.searchQuery
+        ? { q: `"${filters.category}" AND "${filters.searchQuery}"` }
+        : filters.category
+        ? { q: `"${filters.category}"` }
+        : { q: "home" }),
     });
 
-    const response = await axios.get(`https://newsapi.org/v2/everything?${params}`);
+    const response = await axios.get(`${BASE_URLS.newsAPI}?${params}`);
     return normalizeNews(response.data.articles, "News API");
   } catch (error) {
     console.error("Error fetching NewsAPI data:", error);
@@ -101,18 +127,25 @@ const fetchNewsAPI = async (filters: Filters): Promise<FormattedArticle[]> => {
   }
 };
 
-const fetchGuardianNews = async (filters: Filters): Promise<FormattedArticle[]> => {
+const fetchGuardianNews = async (
+  filters: Filters
+): Promise<FormattedArticle[]> => {
   try {
     const params = new URLSearchParams({
       "api-key": API_KEYS.guardianAPI,
       ...(filters.dateSort === "custom"
-        ? { "from-date": filters.fromDate || "", "to-date": filters.toDate || "" }
-        : { "order-by": guardianEquivalents[filters.dateSort || "mostRecent"] }),
+        ? {
+            "from-date": filters.fromDate || "",
+            "to-date": filters.toDate || "",
+          }
+        : {
+            "order-by": guardianEquivalents[filters.dateSort || "mostRecent"],
+          }),
       ...(filters.category ? { section: filters.category } : {}),
       ...(filters.searchQuery ? { q: filters.searchQuery } : {}),
     });
 
-    const response = await axios.get(`https://content.guardianapis.com/search?${params}`);
+    const response = await axios.get(`${BASE_URLS.guardianAPI}?${params}`);
     return normalizeNews(response.data.response.results, "The Guardian");
   } catch (error) {
     console.error("Error fetching Guardian news:", error);
@@ -131,7 +164,7 @@ const fetchNYTNews = async (filters: Filters): Promise<FormattedArticle[]> => {
         : { sort: guardianEquivalents[filters.dateSort || "mostRecent"] }),
     });
 
-    const response = await axios.get(`https://api.nytimes.com/svc/search/v2/articlesearch.json?${params}`);
+    const response = await axios.get(`${BASE_URLS.nytAPI}?${params}`);
     return normalizeNews(response.data.response.docs, "New York Times");
   } catch (error) {
     console.error("Error fetching NYT news:", error);
@@ -139,7 +172,9 @@ const fetchNYTNews = async (filters: Filters): Promise<FormattedArticle[]> => {
   }
 };
 
-export const fetchAllNews = async (filters: Filters): Promise<FormattedArticle[]> => {
+export const fetchAllNews = async (
+  filters: Filters
+): Promise<FormattedArticle[]> => {
   try {
     if (!filters.source) {
       const [newsAPI, guardian, nyt] = await Promise.all([
@@ -163,5 +198,29 @@ export const fetchAllNews = async (filters: Filters): Promise<FormattedArticle[]
   } catch (error) {
     console.error("Error fetching all news:", error);
     throw error;
+  }
+};
+
+export const fetchRegionNews = async (
+  region: string,
+  page: number = 0
+): Promise<{ articles: any[] }> => {
+  try {
+    const params = new URLSearchParams({
+      "api-key": API_KEYS.nytAPI,
+      sort: "newest",
+      page: page.toString(),
+      ...(region ? { fq: `section_name:(\"${region}\")` } : {}),
+    });
+
+    const response = await fetch(`${BASE_URLS.nytAPI}?${params.toString()}`);
+    if (!response.ok) {
+      throw new Error("Failed to fetch news");
+    }
+    const data = await response.json();
+    return { articles: normalizeNews(data.response.docs, "New York Times") };
+  } catch (error) {
+    console.error("Error fetching regional news:", error);
+    return { articles: [] };
   }
 };

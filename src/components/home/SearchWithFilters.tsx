@@ -1,15 +1,11 @@
-import SearchBar from "./SearchBar";
+import SearchBar from "../search/SearchBar";
 
 const SearchWithFilters = () => {
- 
-
   return (
     <div className="flex flex-col items-center w-full p-4">
       <div className="flex items-center w-full max-w-lg">
-        <SearchBar  />
-        
+        <SearchBar />
       </div>
-
     </div>
   );
 };
