@@ -6,13 +6,14 @@ import PrivacyPolicy from "./about/PrivacyPolicy";
 import WhoWeAre from "./about/WhoWeAre";
 import Terms from "./about/TermsAndConditions";
 import RegionNews from "./categories/RegionNews";
+import NewsFeed from "./your-feed/NewsFeed";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Home />} />
-
+        <Route path="/feed" element={<NewsFeed />} />
         <Route path="/category/:category" element={<RegionNews />} />
 
         <Route path="privacy-policy" element={<PrivacyPolicy />} />

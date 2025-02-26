@@ -38,7 +38,6 @@ const FilterModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
       setCategoryArr(categories);
       setIsCategoryEnabled(!!source);
     };
-    console.log("");
     if (source) {
       fetchCategories();
     } else {

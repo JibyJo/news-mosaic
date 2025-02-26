@@ -1,17 +1,13 @@
 import axios from "axios";
 import {
+  API_KEYS,
   BASE_URLS,
   guardianEquivalents,
   nytEquivalents,
 } from "../utils/constants";
+import { normalizeNews, personalFeed } from "../utils/helperFunctions";
 
-const API_KEYS = {
-  newsAPI: import.meta.env.VITE_NEWSAPI_ORG_KEY,
-  guardianAPI: import.meta.env.VITE_GUARDIAN_KEY,
-  nytAPI: import.meta.env.VITE_NYT_KEY,
-};
-
-interface Filters {
+export interface Filters {
   dateSort?: string;
   fromDate?: string | null;
   toDate?: string | null;
@@ -20,7 +16,7 @@ interface Filters {
   source?: string;
 }
 
-interface FormattedArticle {
+export interface FormattedArticle {
   id: string;
   title: string;
   description: string;
@@ -30,34 +26,6 @@ interface FormattedArticle {
   sourceProvider: string;
   author: string;
 }
-
-const normalizeNews = (
-  rawNews: any[],
-  sourceProvider: string
-): FormattedArticle[] =>
-  rawNews.map((article, index) => ({
-    id: article.id || `news-${sourceProvider}-${index}`,
-    title:
-      article.title ||
-      article.webTitle ||
-      article.headline?.main ||
-      "No title available",
-    description:
-      article.description ||
-      article.abstract ||
-      article.sectionName ||
-      "No description available",
-    url: article.url || "#",
-    imageUrl:
-      article.multimedia?.length > 0
-        ? article.multimedia[0].url[0] === "i"
-          ? BASE_URLS.nytAPIImage + article.multimedia[0].url
-          : article.multimedia[0].url
-        : article.urlToImage || article.media || "/news_mosaic.webp",
-    publishedAt: article.publishedAt || article.date || "Unknown date",
-    sourceProvider,
-    author: article.byline || article.author || sourceProvider,
-  }));
 
 export const fetchSectionsAPI = async (): Promise<
   { value: string; name: string }[]
@@ -178,6 +146,7 @@ export const fetchAllNews = async (
   filters: Filters
 ): Promise<FormattedArticle[]> => {
   try {
+    personalFeed(filters);
     if (!filters.source) {
       const [newsAPI, guardian, nyt] = await Promise.all([
         fetchNewsAPI(filters),

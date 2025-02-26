@@ -89,6 +89,7 @@ export const nytEquivalents: sortOptions = {
 };
 
 export const menuItems = [
+  { name: "Your Feed", link: "/feed" },
   { name: "Climate", link: "/category/climate" },
   { name: "US", link: "/category/us" },
   { name: "World", link: "/category/world" },
@@ -102,4 +103,11 @@ export const BASE_URLS = {
   nytAPI: "https://api.nytimes.com/svc/search/v2/articlesearch.json",
   nytAPIImage: "https://static01.nyt.com/",
 };
+
+export const API_KEYS = {
+  newsAPI: import.meta.env.VITE_NEWSAPI_ORG_KEY,
+  guardianAPI: import.meta.env.VITE_GUARDIAN_KEY,
+  nytAPI: import.meta.env.VITE_NYT_KEY,
+};
+
 export { newsAPICategories, newYorkTimesCategories };
